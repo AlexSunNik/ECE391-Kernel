@@ -1,0 +1,120 @@
+Checkpoint 1:
+
+Bug #1
+Description: Initialized the idt, but could not raise any exception.
+Cause: Did not initialize the idt table entries correctly.
+Solution: Updated the struct in the same way as how the documentation specified.
+
+Bug #2
+Description: Interrupt/exception handler function labels (pointers) not found.
+Cause: .h file could not find labels in .S.
+Solution: Re-declared the same labels in .h file.
+
+Bug #3
+Description: Interrupt could be handled only one time.
+Cause: Did not send EOI at the end of the interrupt handler.
+Solution: Sent EOI at the end of the interrupt handler.
+
+Bug #4
+Description: Slave PIC’s interrupts cannot be handled.
+Cause: Did not send EOI to both slave and master PIC.
+Solution: Sent EOI to both slave and master PIC.
+
+Bug #5 
+Description: Some exceptions could not be evoked(e.g. overflow).
+Cause: Wrong way to test.
+Solution: Read ULK and Intel manual to find correct way to evoke exceptions.
+
+Bug #6
+Description: Paging did not work. System crashed with “watchdog expired”.
+Cause: Wrong sequence of "enabling paging" and "enabling mixture of pages of 
+different sizes".
+Solution: Reordered the sequence of initialization.
+
+Checkpoint 2:
+
+Bug #1
+Description: Multiple virtual RTC interrupts every cycle.
+Cause:  CPU runs much faster than RTC interrupt. CPU handles the same interrupt multiple times.
+Solution: Use a flag to indicate that RTC interrupt is handled and should not be handled again.
+
+Bug #2
+Description: Extra or absent ‘\n’ at the end of buffer for terminal_read.
+Cause: Index mismatch.
+Solution: Restructure the code and consider all edge cases.
+
+Bug #3
+Description: Messy treatment of file system pointers.
+Cause: Did not use structs in the beginning.
+Solution: Use structs: dentry, inode, data_block, and fae (file abstraction entry).
+
+Bug #4
+Description: Unable to get size of files.
+Cause: Pointer typecasting and incrementation mistake. Incrementation of pointers of different struct are not compatible.
+Solution: Typecast pointer before incrementation.
+
+Checkpoint 3:
+
+Bug #1
+Description: Unable to invoke file specific system call (such as file_read).
+Cause: Inconsistent prototypes for different methods.
+Solution: Unify the function interfaces.
+
+Bug #2
+Description: Could not jump back to ls's execution from ls's halt.
+Cause: Incorrect EIP and EBP saved.
+Solution: Use current process's EBP instead of parent process's EBP.
+
+Bug #3 [critical]
+Description: Page fault occurred when halt a user program.
+Cause: Wrong page directory entry value, physical address shift more than need.
+Solution: Correct the page directory entry for user program. Shift 11 bits instead of 22.
+
+Bug #4
+Description: Random page fault even with correct ebp, eip and paging routines.
+Cause: Interrupt breaks up stack setup.
+Solution: Extend the critical section of halt and execute.
+
+Checkpoint 4:
+
+Bug #1
+Description: "cat" program terminated abnormally.
+Cause:  Wrong return value of file_read and wrong incrementation of file position.
+Solution: file_read returns the number of bytes actually read. 
+    File position is incremented by return value of file_read.
+
+Bug #2
+Description: "grep" program did not work.
+Cause: file_close checks file status and returns abnormally because the file
+    is already closed by the caller(close system call).
+Solution: Close the file in close system call handler and remove redundent status check in file_close. 
+
+Checkpoint 5:
+
+Bug #1
+Description: Pressing keyboard is not responsive and active on the displayed terminal.
+Cause: The process allocated a time quantum is not necessarily the one displayed.
+Solution: Perform a process switch to the active process in the keyboard handler.
+
+Bug #2
+Description: Program "terminates abnormally" randomly.
+Cause: Do not restore return value for process in PIT interrupt.
+Solution: Save and restore registers in all interrupt wrappers.
+
+Bug #3
+Description: Program cannot halt normally after implementing scheduling.
+Cause: Share ebp for both execute (halt) and process switch.
+Solution: Seperate ebps for execute (halt) and process switch, so after switching processes
+for several times, the program can still find its original execute's ebp.
+
+Bug #4
+Description: Cannot handle keyboard input correctly after implementing scheduling.
+Cause: printf() used in orignal keyboard handler can only print in current termial's
+video memory, cannot garantee to be visible.
+Solution: create printf_direct() function specifically for keyboard handler, would 
+directly write to the actual video memory and active_term_idx's video memory.
+
+Bug #5
+Description: Random page fault exception when executing multiple "fish".
+Cause: Critical section does not wrap the whole process switch. sti() after swapping video page.
+Solution: Remove sti() at page swapping function. Extend critical section to wrap the whole process switch.
