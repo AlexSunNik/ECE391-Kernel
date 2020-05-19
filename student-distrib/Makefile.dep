@@ -1,0 +1,29 @@
+boot.o: boot.S multiboot.h x86_desc.h types.h
+exception_linkage.o: exception_linkage.S exception_linkage.h
+interrupt_linkage.o: interrupt_linkage.S interrupt_linkage.h
+system_call_linkage.o: system_call_linkage.S system_call_linkage.h
+x86_desc.o: x86_desc.S x86_desc.h types.h
+exceptions.o: exceptions.c lib.h types.h exceptions.h system_call.h \
+  process.h x86_desc.h
+file_system.o: file_system.c lib.h types.h file_system.h process.h \
+  x86_desc.h
+i8259.o: i8259.c i8259.h types.h lib.h
+idt.o: idt.c lib.h types.h x86_desc.h idt.h exception_linkage.h \
+  interrupt_linkage.h system_call_linkage.h
+kernel.o: kernel.c multiboot.h types.h x86_desc.h lib.h i8259.h debug.h \
+  tests.h rtc.h process.h paging.h file_system.h keyboard.h system_call.h \
+  scheduling.h
+keyboard.o: keyboard.c lib.h types.h keyboard.h process.h x86_desc.h \
+  i8259.h scheduling.h system_call.h
+lib.o: lib.c lib.h types.h keyboard.h process.h x86_desc.h scheduling.h
+paging.o: paging.c lib.h types.h paging.h scheduling.h keyboard.h \
+  process.h x86_desc.h
+process.o: process.c process.h types.h x86_desc.h keyboard.h lib.h \
+  system_call.h scheduling.h
+rtc.o: rtc.c rtc.h types.h process.h x86_desc.h lib.h i8259.h
+scheduling.o: scheduling.c keyboard.h process.h types.h x86_desc.h lib.h \
+  i8259.h system_call.h paging.h scheduling.h
+system_call.o: system_call.c lib.h types.h system_call.h process.h \
+  x86_desc.h file_system.h rtc.h keyboard.h paging.h scheduling.h
+tests.o: tests.c tests.h x86_desc.h types.h lib.h file_system.h process.h \
+  rtc.h keyboard.h system_call.h
